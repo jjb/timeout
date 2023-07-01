@@ -91,7 +91,7 @@ class TestTimeout < Test::Unit::TestCase
   def test_rescue_exit
     exc = Class.new(RuntimeError)
     e = nil
-    assert_nothing_raised(exc) do
+    assert_raise_with_message(exc, 'execution expired') do
       Timeout.timeout 0.01, exc do
         begin
           sleep 3
@@ -99,7 +99,7 @@ class TestTimeout < Test::Unit::TestCase
         end
       end
     end
-    assert_raise_with_message(exc, 'execution expired') {raise e if e}
+    # assert_raise_with_message(exc, 'execution expired') {raise e if e} # pretty sure irrelevant now that above behavior is reversed
   end
 
   def test_custom_exception

@@ -67,6 +67,13 @@ module Timeout
       @done = false # protected by @mutex
     end
 
+    def in_runner_thread
+      @runner_thread = Thread.new do
+        yield
+      end
+      @runner_thread.value
+    end
+
     def done?
       @mutex.synchronize do
         @done
@@ -80,11 +87,25 @@ module Timeout
     def interrupt
       @mutex.synchronize do
         unless @done
-          @thread.raise @exception_class, @message
+          return unless @runner_thread
+          @runner_thread.raise @exception_class, @message
           @done = true
+          next unless @runner_thread.alive?
+          @runner_thread.join(2)
+          # @runner_thread.stop ??
+          @thread.raise @exception_class, @message
         end
       end
     end
+
+    # def interrupt_main_thread
+    #   @mutex.synchronize do
+    #     unless @done
+    #       @thread.raise @exception_class, @message
+    #       @done = true
+    #     end
+    #   end
+    # end
 
     def finished
       @mutex.synchronize do
@@ -112,7 +133,13 @@ module Timeout
         end
 
         requests.each do |req|
-          req.interrupt if req.expired?(now)
+          if req.expired?(now)
+            req.interrupt
+
+            # binding.irb
+            # puts "\n\ninterrupting main thread\n\n"
+            # req.interrupt_main_thread # sometimes we don't get here, by design
+          end
         end
         requests.reject!(&:done?)
       end
@@ -177,13 +204,17 @@ module Timeout
 
     Timeout.ensure_timeout_thread_created
     perform = Proc.new do |exc|
+      # runner_thread = Thread.new
       request = Request.new(Thread.current, sec, exc, message)
       QUEUE_MUTEX.synchronize do
         QUEUE << request
         CONDVAR.signal
       end
       begin
-        return yield(sec)
+        request.in_runner_thread do
+        # Thread.new do
+          yield(sec)
+        end
       ensure
         request.finished
       end
