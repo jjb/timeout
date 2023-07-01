@@ -18,7 +18,7 @@ class ErrorLifeCycleTester
     @outer_ensure_has_time_to_finish = false
 
     begin
-      Timeout.timeout(0.1, error_to_raise) do
+      Timeout.timeout(0.001, error_to_raise) do
         @inner_attempted = true
         nil while true
       rescue error_to_rescue
