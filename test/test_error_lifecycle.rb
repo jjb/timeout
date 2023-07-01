@@ -52,7 +52,7 @@ class TestTimeout < Test::Unit::TestCase
     assert s.outer_rescue
   end
 
-  # # when an exception to raise is StandardError and the inner code does catch Exception
+  # when an exception to raise is StandardError and the inner code does catch Exception
   def test_4
     s = ErrorLifeCycleTester.new
     s.subject(MyStandardError, Exception)
