@@ -58,6 +58,7 @@ module Timeout
     attr_reader :deadline
 
     def initialize(thread, timeout, exception_class, message)
+      @timeout = timeout
       @thread = thread
       @deadline = GET_TIME.call(Process::CLOCK_MONOTONIC) + timeout
       @exception_class = exception_class
@@ -65,6 +66,16 @@ module Timeout
 
       @mutex = Mutex.new
       @done = false # protected by @mutex
+    end
+
+    def in_runner_thread
+
+      # do we want to be able to pass down handle_interrupt values from parent thread?
+      # or does that already happen by default? test_handle_interrupt does pass.
+      @runner_thread = Thread.new do
+        yield
+      end
+      @runner_thread.value
     end
 
     def done?
@@ -80,8 +91,21 @@ module Timeout
     def interrupt
       @mutex.synchronize do
         unless @done
-          @thread.raise @exception_class, @message
+          return unless @runner_thread
+          @runner_thread.raise @exception_class, @message
           @done = true
+
+          # value given to join is time allowed for inner ensure block.
+          # implication is total code runtime within Timeout.timeout block is (@timeout + whatever is given here)
+          # with timeout gem 0.4.0, it is infinite
+          #
+          # a sensible value to give here would be @timeout, capping total code execution time at 2x@timeout.
+          # because of how test_handle_interrupt is currently done, doing so makes it fail
+          # i don't know if the big delta between the timeout numbers in that test are crucial to its behavior check
+          # hardcoding 5 in here for now
+          @runner_thread.join(5) # replace with @timeout?
+          next unless @runner_thread.alive?
+          @thread.raise @exception_class, @message
         end
       end
     end
@@ -183,7 +207,9 @@ module Timeout
         CONDVAR.signal
       end
       begin
-        return yield(sec)
+        request.in_runner_thread do
+          yield(sec)
+        end
       ensure
         request.finished
       end

@@ -39,9 +39,7 @@ class TestTimeout < Test::Unit::TestCase
     core_assertions(s)
 
     assert s.inner_rescue # true in 1.9, false in gem 0.2.0, true in gem 0.4.0
-
-    # UNDESIRED?
-    assert !s.outer_rescue # false in 1.9 stdlib, true in gem 0.2.0, false in gem 0.4.0
+    assert s.outer_rescue # false in 1.9 stdlib, true in gem 0.2.0, false in gem 0.4.0
   end
 
   # when an exception to raise is StandardError and the inner code does not catch Exception
@@ -51,9 +49,7 @@ class TestTimeout < Test::Unit::TestCase
     core_assertions(s)
 
     assert s.inner_rescue
-
-    # UNDESIRED?
-    assert !s.outer_rescue
+    assert s.outer_rescue
   end
 
   # when an exception to raise is StandardError and the inner code does catch Exception
@@ -63,9 +59,7 @@ class TestTimeout < Test::Unit::TestCase
     core_assertions(s)
 
     assert s.inner_rescue
-
-    # UNDESIRED?
-    assert !s.outer_rescue
+    assert s.outer_rescue
   end
 
   # when an exception to raise is Exception and the inner code does not catch Exception
@@ -85,9 +79,7 @@ class TestTimeout < Test::Unit::TestCase
     core_assertions(s)
   
     assert s.inner_rescue
-
-    # UNDESIRED?
-    assert !s.outer_rescue
+    assert s.outer_rescue
   end
 
 end
