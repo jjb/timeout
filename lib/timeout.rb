@@ -94,7 +94,6 @@ module Timeout
           return unless @runner_thread
           @runner_thread.raise @exception_class, @message
           @done = true
-          next unless @runner_thread.alive?
 
           # value given to join is time allowed for inner ensure block.
           # implication is total code runtime within Timeout.timeout block is (@timeout + whatever is given here)
@@ -105,6 +104,7 @@ module Timeout
           # i don't know if the big delta between the timeout numbers in that test are crucial to its behavior check
           # hardcoding 5 in here for now
           @runner_thread.join(5) # replace with @timeout?
+          next unless @runner_thread.alive?
           @thread.raise @exception_class, @message
         end
       end
