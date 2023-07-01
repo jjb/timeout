@@ -91,7 +91,7 @@ module Timeout
           @runner_thread.raise @exception_class, @message
           @done = true
           next unless @runner_thread.alive?
-          @runner_thread.join(2)
+          @runner_thread.join(@deadline) # time allowed for inner ensure block
           @thread.raise @exception_class, @message
         end
       end
