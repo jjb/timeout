@@ -188,7 +188,6 @@ module Timeout
 
     Timeout.ensure_timeout_thread_created
     perform = Proc.new do |exc|
-      # runner_thread = Thread.new
       request = Request.new(Thread.current, sec, exc, message)
       QUEUE_MUTEX.synchronize do
         QUEUE << request
@@ -196,7 +195,6 @@ module Timeout
       end
       begin
         request.in_runner_thread do
-        # Thread.new do
           yield(sec)
         end
       ensure
