@@ -92,20 +92,10 @@ module Timeout
           @done = true
           next unless @runner_thread.alive?
           @runner_thread.join(2)
-          # @runner_thread.stop ??
           @thread.raise @exception_class, @message
         end
       end
     end
-
-    # def interrupt_main_thread
-    #   @mutex.synchronize do
-    #     unless @done
-    #       @thread.raise @exception_class, @message
-    #       @done = true
-    #     end
-    #   end
-    # end
 
     def finished
       @mutex.synchronize do
@@ -133,13 +123,7 @@ module Timeout
         end
 
         requests.each do |req|
-          if req.expired?(now)
-            req.interrupt
-
-            # binding.irb
-            # puts "\n\ninterrupting main thread\n\n"
-            # req.interrupt_main_thread # sometimes we don't get here, by design
-          end
+          req.interrupt if req.expired?(now)
         end
         requests.reject!(&:done?)
       end
