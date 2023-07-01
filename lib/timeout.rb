@@ -58,6 +58,7 @@ module Timeout
     attr_reader :deadline
 
     def initialize(thread, timeout, exception_class, message)
+      @timeout = timeout
       @thread = thread
       @deadline = GET_TIME.call(Process::CLOCK_MONOTONIC) + timeout
       @exception_class = exception_class
@@ -93,10 +94,10 @@ module Timeout
           next unless @runner_thread.alive?
 
           # value given to join is time allowed for inner ensure block.
-          # choosing to re-use @deadline is semi arbitrary.
+          # choosing to re-use @timeout is semi arbitrary.
           # implication is total code runtime within Timeout.timeout block is (2 x @timeout)
           # (with timeout gem 0.4.0, it is infinite)
-          @runner_thread.join(@deadline)
+          @runner_thread.join(@timeout)
           @thread.raise @exception_class, @message
         end
       end
