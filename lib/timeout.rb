@@ -91,7 +91,12 @@ module Timeout
           @runner_thread.raise @exception_class, @message
           @done = true
           next unless @runner_thread.alive?
-          @runner_thread.join(@deadline) # time allowed for inner ensure block
+
+          # value given to join is time allowed for inner ensure block.
+          # choosing to re-use @deadline is semi arbitrary.
+          # implication is total code runtime within Timeout.timeout block is (2 x @timeout)
+          # (with timeout gem 0.4.0, it is infinite)
+          @runner_thread.join(@deadline)
           @thread.raise @exception_class, @message
         end
       end
