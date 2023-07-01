@@ -71,7 +71,7 @@ module Timeout
     def in_runner_thread
 
       # do we want to be able to pass down handle_interrupt values from parent thread?
-      # or does that already happen by default? That test does pass.
+      # or does that already happen by default? test_handle_interrupt does pass.
       @runner_thread = Thread.new do
         yield
       end
