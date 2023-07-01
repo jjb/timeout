@@ -99,7 +99,9 @@ class TestTimeout < Test::Unit::TestCase
         end
       end
     end
-    # assert_raise_with_message(exc, 'execution expired') {raise e if e} # pretty sure irrelevant now that above behavior is reversed
+
+    # pretty sure irrelevant now that above behavior is reversed
+    # assert_raise_with_message(exc, 'execution expired') {raise e if e}
   end
 
   def test_custom_exception
