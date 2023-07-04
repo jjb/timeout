@@ -35,13 +35,15 @@ module Timeout
   # Raised by Timeout.timeout when the block times out.
   class Error < RuntimeError
     def self.handle_timeout(message)
-      exc = ExitException.new(message)
-
       begin
-        yield exc
+        yield ExitException
       rescue ExitException => e
-        raise new(message) if exc.equal?(e)
-        raise
+        case e
+        when ExitException
+          raise new(message)
+        else
+          raise
+        end
       end
     end
   end
