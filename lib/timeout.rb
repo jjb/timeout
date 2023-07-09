@@ -80,7 +80,7 @@ module Timeout
     def interrupt
       @mutex.synchronize do
         unless @done
-          @thread.raise @exception_class, @message
+          @thread.raise @exception_class, 'execution expired'#, @message
           @done = true
         end
       end

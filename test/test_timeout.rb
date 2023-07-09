@@ -111,6 +111,32 @@ class TestTimeout < Test::Unit::TestCase
     assert_raise_with_message(exc, 'execution expired') {raise e if e}
   end
 
+  # def test_custom_message_is_used_for_interrupt_exception_when_using_custom_exception
+  #   exc = Class.new(StandardError)
+  #   interrupt_message = nil
+  #   Timeout.timeout 0.01, exc, 'custom message' do
+  #     begin
+  #       sleep 3
+  #     rescue => e
+  #       interrupt_message = e.message
+  #     end
+  #   end
+  #   assert_equal 'custom message', interrupt_message
+  # end
+
+  # def test_custom_message_is_used_for_interrupt_exception_when_not_using_custom_exception
+  #   exc = Class.new(StandardError)
+  #   interrupt_message = nil
+  #   Timeout.timeout 0.01, nil, 'custom message' do
+  #     begin
+  #       sleep 3
+  #     rescue Exception => e
+  #       interrupt_message = e.message
+  #     end
+  #   end
+  #   assert_equal 'custom message', interrupt_message
+  # end
+
   def test_custom_exception
     bug9354 = '[ruby-core:59511] [Bug #9354]'
     err = Class.new(StandardError) do
