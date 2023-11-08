@@ -40,7 +40,7 @@ module Timeout
       begin
         yield exc
       rescue ExitException => e
-        raise new(message) if exc.class == e.class
+        raise new(message) if exc.equal?(e)
         raise
       end
     end
